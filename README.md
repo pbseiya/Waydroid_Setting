@@ -107,6 +107,25 @@ sudo waydroid shell mkdir -p /sdcard/Download/HostData
 4.  หาแถบของ **Waydroid** (หรืออาจชื่อว่า `ALSA plug-in [writer]`)
 5.  **เร่งเสียงให้เกิน 100%** (เช่น 120-130%) จะช่วยให้เสียงดังขึ้นชัดเจน
 
+### 4.3 สั่งปรับเสียงผ่าน Terminal (ใน Waydroid ไม่มีปุ่ม)
+เนื่องจากในหน้าจอ Waydroid อาจไม่มีปุ่ม Volume ให้กด คุณสามารถใช้คำสั่ง Terminal เพื่อสั่งปรับระดับเสียงได้โดยตรง
+
+**รูปแบบคำสั่ง:** `waydroid shell cmd media_session volume --show --stream 3 --set <ระดับเสียง 0-15>`
+
+*   **ปรับเสียงดังสุด (Level 15):**
+    ```bash
+    waydroid shell cmd media_session volume --show --stream 3 --set 15
+    ```
+*   **ปรับเสียงปานกลาง (Level 7):**
+    ```bash
+    waydroid shell cmd media_session volume --show --stream 3 --set 7
+    ```
+*   **ปิดเสียง (Mute):**
+    ```bash
+    waydroid shell cmd media_session volume --show --stream 3 --set 0
+    ```
+*(หมายเหตุ: `--stream 3` คือเสียงเพลง/Media)*
+
 ---
 
 ## สรุปคำสั่งสำคัญที่ใช้บ่อย
