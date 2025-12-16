@@ -24,10 +24,24 @@ cd ~
 # ดึงไฟล์จาก Github (ถ้ายังไม่มี)
 git clone https://github.com/KSMaan45/waywes.git
 
-# การใช้งาน
+# เข้าโฟลเดอร์และกำหนดสิทธิ์
 cd ~/waywes
+chmod +x waywes.sh
+
+# การใช้งาน
 ./waywes.sh
 # เลือกโหมดที่ต้องการจากเมนู
+
+### ฟีเจอร์เพิ่มเติม (Extras)
+ในเมนูข้อ 9. Extras จะมีคำสั่งช่วยอำนวยความสะดวก:
+1.  **Add Script To Path:** เพิ่ม waywes ลงใน Path ทำให้เรียกใช้คำสั่ง `waywes.sh` ได้จากทุกที่ (ต้องใช้ root/sudo)
+2.  **Remove Script From Path:** ลบออกจาก Path
+
+### การแก้ไขความละเอียดหน้าจอ (Custom Resolution)
+หากต้องการความละเอียดอื่นนอกเหนือจากที่มีให้ สามารถแก้ไขไฟล์ `waywes.sh` ได้โดยตรง
+*   เปิดไฟล์ด้วย Text Editor
+*   แก้ไขค่า `--width` และ `--height` ตามต้องการ (เช่น `--width 2560 --height 1440`)
+*   เปลี่ยนชื่อเมนูให้สอดคล้องกัน (เช่นแก้ `"1920x1080 Fullscreen")` เป็น `"2560x1440 Fullscreen")`)
 ```
 
 ---
