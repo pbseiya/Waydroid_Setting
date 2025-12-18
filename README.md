@@ -5,6 +5,9 @@
 ## 1. การติดตั้ง Waydroid และ Waywes
 
 ### 1.1 ติดตั้ง Waydroid และ Weston
+> [!NOTE]
+> โดยปกติ Waydroid จะติดตั้งในโหมด **Phone/Tablet** ให้ทันที (ไม่ใช่ Smart TV) และไม่มีเมนูให้เลือกตอนติดตั้ง
+
 จำเป็นต้องติดตั้ง Weston ด้วยเพราะ script Waywes ต้องใช้ในการเปิดหน้าต่าง
 ```bash
 # อัปเดตระบบ
@@ -41,13 +44,45 @@ chmod +x waywes.sh
 หากต้องการความละเอียดอื่นนอกเหนือจากที่มีให้ สามารถแก้ไขไฟล์ `waywes.sh` ได้โดยตรง
 *   เปิดไฟล์ด้วย Text Editor
 *   แก้ไขค่า `--width` และ `--height` ตามต้องการ (เช่น `--width 2560 --height 1440`)
-*   เปลี่ยนชื่อเมนูให้สอดคล้องกัน (เช่นแก้ `"1920x1080 Fullscreen")` เป็น `"2560x1440 Fullscreen")`)
+4.  *   เปลี่ยนชื่อเมนูให้สอดคล้องกัน (เช่นแก้ `"1920x1080 Fullscreen")` เป็น `"2560x1440 Fullscreen")`)
 ```
+
+### 1.3 (Advanced) การเปลี่ยนโหมดเป็น Smart TV
+หากต้องการให้หน้าตา (UI) ของ Waydroid เป็นแบบ Android TV สามารถทำได้โดยเปลี่ยน property ของระบบ
+
+**เปลี่ยนเป็น Smart TV:**
+```bash
+# เปลี่ยนค่า
+sudo waydroid prop set ro.build.characteristics tv
+
+# รีสตาร์ท Waydroid
+waydroid session stop
+```
+
+**เปลี่ยนกลับเป็น Phone/Tablet (ค่าเดิม):**
+```bash
+sudo waydroid prop set ro.build.characteristics default
+waydroid session stop
+```
+*หมายเหตุ: การเปลี่ยนเป็น TV อาจทำให้ Play Store เปลี่ยนเป็นเวอร์ชัน TV และแอปบางตัวที่ไม่รองรับ TV อาจค้นหาไม่เจอ*
 
 ---
 
 ## 2. การเปิดใช้งาน Google Play Store
 Waydroid ปกติจะไม่มี Play Store ต้องติดตั้งแบบ GAPPS
+
+
+### 2.0 เลือกประเภท ROM (GAPPS vs VANILLA)
+ก่อนติดตั้ง ควรเลือก ROM ให้ตรงกับการใช้งาน:
+*   **GAPPS (แนะนำ):** มี Google Play Store และ Google Services มาให้พร้อม (เหมาะสำหรับคนทั่วไป)
+*   **VANILLA:** เป็น Android เพียวๆ ไม่มี Google Services (เหมาะสำหรับนักพัฒนา หรือคนที่ไม่ต้องการใช้ Google)
+
+**ตรวจสอบว่าเครื่องเราใช้ ROM อะไรอยู่:**
+```bash
+waydroid prop get waydroid.system_ota
+```
+*   ถ้าลงท้ายด้วย `GAPPS.json` = ใช้ GAPPS (มี Play Store)
+*   ถ้าลงท้ายด้วย `MAINLINE.json` = ใช้ VANILLA (ไม่มี Play Store)
 
 ### 2.1 ติดตั้ง Image แบบ GAPPS
 ```bash
@@ -57,6 +92,7 @@ waydroid session stop
 # ติดตั้งใหม่ (ข้อมูลเก่าจะหาย)
 sudo waydroid init -s GAPPS -f
 ```
+*ถ้าต้องการ VANILLA ให้เปลี่ยน `-s GAPPS` เป็น `-s VANILLA`*
 
 ### 2.2 ลงทะเบียนอุปกรณ์ (Play Protect Certification)
 จำเป็นต้องทำเพื่อให้ใช้งาน Play Store ได้
@@ -73,6 +109,49 @@ sudo waydroid init -s GAPPS -f
     sudo waydroid shell pm clear com.google.android.gsf
     sudo waydroid shell pm clear com.google.android.gms
     ```
+
+### 2.3 การเปิดใช้งาน ARM Translation (เพื่อให้เห็นแอป LINE/Games)
+แอปพลิเคชันมือถือส่วนใหญ่ (เช่น LINE, เกม ROV) ถูกพัฒนามาสำหรับชิป ARM แต่คอมพิวเตอร์ทั่วไปเป็น x86 ทำให้ Play Store มองว่า "ไม่รองรับ" จึงซ่อนแอปไว้
+เราต้องติดตั้ง **libhoudini** (สำหรับ Intel) หรือ **libndk** (สำหรับ AMD) เพื่อให้รันแอปเหล่านี้ได้
+
+**ขั้นตอนการติดตั้ง:**
+1.  **ติดตั้ง Waydroid Script:**
+    ```bash
+    cd ~
+    git clone https://github.com/casualsnek/waydroid_script
+    cd waydroid_script
+    python3 -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    ```
+2.  **รัน Script:**
+    ```bash
+    sudo python3 main.py
+    ```
+3.  **เลือกเมนู:**
+    *   เลือก `Install`
+    *   เลือก `libhoudini` (ถ้าใช้ CPU Intel) หรือ `libndk` (ถ้าใช้ CPU AMD)
+    *   กด Spacebar เพื่อเลือก แล้วกด Enter
+4.  **รอจนเสร็จ** แล้วปิด Waydroid เปิดใหม่
+
+### 2.4 แก้ปัญหาแอปยังหาไม่เจอ (เปลี่ยนชื่อรุ่นมือถือ)
+บางครั้ง Play Store จะซ่อนแอปถ้าชื่อรุ่นมือถือดูแปลกๆ (เช่น "WayDroid x86_64 Device") ให้เปลี่ยนชื่อเป็นรุ่นดังๆ เช่น **Pixel 5**
+```bash
+# เปลี่ยนชื่อรุ่น (ใช้ sudo)
+sudo waydroid prop set ro.product.model "Pixel 5"
+sudo waydroid prop set ro.product.brand "google"
+sudo waydroid prop set ro.product.name "redfin"
+sudo waydroid prop set ro.product.device "redfin"
+sudo waydroid prop set ro.product.manufacturer "Google"
+
+# ล้างค่า Play Store (สำคัญมาก!)
+sudo waydroid shell pm clear com.android.vending
+sudo waydroid shell pm clear com.google.android.gms
+
+# รีสตาร์ท Waydroid เพื่อให้ค่าเริ่มทำงาน
+waydroid session stop
+```
+*หลังจากทำเสร็จ ให้ปิด Waydroid แล้วเปิดใหม่ทันที*
 
 ---
 
@@ -160,6 +239,35 @@ for i in {1..15}; do sudo waydroid shell input keyevent 24; done
 `waydroid shell cmd media_session volume --show --stream 3 --set <ระดับเสียง 0-15>`
 *   **ดังสุด (15):** `waydroid shell cmd media_session volume --show --stream 3 --set 15`
 *   **เงียบ (0):** `waydroid shell cmd media_session volume --show --stream 3 --set 0`
+
+---
+
+## 5. การตรวจสอบปัญหาและดู Log
+หาก Waydroid เปิดไม่ติด หรือแอปเด้ง สามารถตรวจสอบสาเหตุได้ดังนี้
+
+### 5.1 ดู Log ของระบบ (Waydroid Log)
+ดูว่า Container ทำงานปกติหรือไม่ มี Error อะไรตอน Start
+*   **ดู Log ย้อนหลัง:** `waydroid log`
+*   **ดู Log แบบ Real-time:** `waydroid log -f`
+    *(กด Ctrl+C เพื่อออก)*
+
+### 5.2 ดู Log ของ Android (Logcat)
+ดูการทำงานภายใน Android เหมือนนักพัฒนา (เช่น ทำไมแอป Crash)
+*   **ดูแบบ Real-time:**
+    ```bash
+    sudo waydroid logcat
+    ```
+*   **บันทึกลงไฟล์ (เพื่อส่งให้คนอื่นช่วยดู):**
+    ```bash
+    sudo waydroid logcat > ~/waydroid_log.txt
+    ```
+    *(ไฟล์จะถูกเซฟไว้ที่ Home folder ชื่อ `waydroid_log.txt`)*
+
+### 5.3 วิธี Start แบบเห็น Log ทันที
+หากเปิด Waywes ไม่ติด แนะนำให้ลองเปิดผ่าน Terminal เพื่อดูข้อความ Error:
+1.  เปิด Terminal
+2.  พิมพ์คำสั่ง: `waydroid session start`
+3.  สังเกตข้อความที่ขึ้นมา ถ้ามีสีแดง (Error) ให้นำข้อความนั้นไปค้นหาทางแก้
 
 ---
 
